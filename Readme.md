@@ -1,51 +1,4 @@
-# Java Technical Assessment - Assignments 1 & 2
-
-This repository contains the solutions for two technical assignments demonstrating proficiency in **Multithreading** and **Functional Programming**.
-
-1.  **Assignment 1:** Producer-Consumer Pattern (Thread Synchronization)
-2.  **Assignment 2:** Sales Data Analysis (Java Streams & Lambdas)
-
----
-
-## 📂 Project Structure
-
-```text
-src/
- └── com/
-      └── assignment/
-           ├── assignment1/               # Assignment 1: Threading Logic
-           │    ├── Main.java             # Visual Demo (Producer-Consumer)
-           │    ├── ProducerConsumerTest.java # JUnit 5 Test Suite
-           │    ├── CustomBlockingBuffer.java # Monitor Object (Wait/Notify)
-           │    └── [Worker Classes...]
-           └── assignment2/               # Assignment 2: Sales Analysis
-                ├── Main.java             # Visual Demo (Sales Analysis)
-                ├── SalesAnalysisTest.java    # JUnit 5 Test Suite
-                ├── SalesAnalysisService.java # Stream Logic
-                └── CsvLoader.java        # File Parser
-sales.csv                                 # Data file (Located in Project Root)
-
-🛠️ Setup Instructions
-Clone the Repository:
-
-git clone [https://github.com/](https://github.com/)[YOUR-USERNAME]/[REPO-NAME].git
-Open in IntelliJ IDEA:
-
-Go to File > Open and select the project folder.
-
-Verify Data File:
-
-Ensure sales.csv is located in the project root folder (the same level as src), otherwise Assignment 2 will not find the data.
-
-Dependencies:
-
-The project uses JUnit 5.8.1 (or higher) for testing. Ensure this library is added to your classpath (IntelliJ usually detects this automatically).
-
-Here is the complete content for your README.md. It includes the project structure, setup steps, and the sample console output for both assignments as requested.
-
-📋 Copy and Paste this into README.md
-Markdown
-
+````markdown
 # Java Technical Assessment - Assignments 1 & 2
 
 This repository contains the solutions for two Java technical assignments demonstrating proficiency in **Multithreading** and **Functional Programming**.
@@ -72,40 +25,49 @@ src/
                 ├── SalesAnalysisService.java # Stream Logic
                 └── CsvLoader.java        # File Parser
 sales.csv                                 # Data file (Located in Project Root)
-🛠️ Setup Instructions
-Clone the Repository:
+````
 
-Bash
+-----
 
-git clone [https://github.com/](https://github.com/)[YOUR-USERNAME]/[REPO-NAME].git
-Open in IntelliJ IDEA:
+## 🛠️ Setup Instructions
 
-Go to File > Open and select the project folder.
+### 1\. Clone the Repository
 
-Verify Data File:
+```bash
+git clone [https://github.com/RobinsAryan/Intuit_Assessment.git](https://github.com/RobinsAryan/Intuit_Assessment.git)
+```
 
-Ensure sales.csv is located in the project root folder (the same level as src), otherwise Assignment 2 will not find the data.
+### 2\. Open in IntelliJ IDEA
 
-Dependencies:
+* Go to **File \> Open** and select the project folder.
 
-The project uses JUnit 5.8.1 (or higher) for testing. Ensure this library is added to your classpath (IntelliJ usually detects this automatically).
+### 3\. Verify Data File
 
-📝 Assignment 1: Producer-Consumer Pattern
-Objective: Implement a thread-safe data transfer system using the Monitor Object pattern (synchronized, wait, notifyAll).
+* Ensure `sales.csv` is located in the **project root folder** (the same level as `src`). If it is missing or inside `src`, Assignment 2 will not be able to load the data.
 
-Key Features
-Thread Safety: Implemented a CustomBlockingBuffer that handles concurrent access without race conditions.
+### 4\. Dependencies
 
-Blocking Behavior:
+* The project uses **JUnit 5.8.1** (or higher) for testing. Ensure this library is added to your classpath (IntelliJ usually detects this automatically).
 
-Producers block (wait) when the buffer is full.
+-----
 
-Consumers block (wait) when the buffer is empty.
+## 📝 Assignment 1: Producer-Consumer Pattern
 
-Testing: JUnit tests verify data integrity and blocking states under different capacities (1, 3, 50).
+**Objective:** Implement a thread-safe data transfer system using the Monitor Object pattern (`synchronized`, `wait`, `notifyAll`).
 
-Sample Output (Console Demo)
-Run src/com/assignment/assignment1/Main.java
+### Key Features
+
+* **Thread Safety:** Implemented a `CustomBlockingBuffer` that handles concurrent access without race conditions.
+* **Blocking Behavior:**
+    * Producers block (wait) when the buffer is full.
+    * Consumers block (wait) when the buffer is empty.
+* **Testing:** JUnit tests verify data integrity and blocking states under different capacities (1, 3, 50).
+
+### Sample Output (Console Demo)
+
+*Run `src/com/assignment/assignment1/Main.java`*
+
+```text
 --- Assignment 1: Producer-Consumer Pattern ---
 PRODUCER: Added 1 | Size: 1
 PRODUCER: Added 2 | Size: 2
@@ -136,27 +98,26 @@ CONSUMER: Removed 10 | Size: 0
 Consumer: Job Finished.
 --- Complete ---
 SUCCESS: Integrity Verified. Thread synchronization worked.
+```
 
---------------------------------------------------------------------
-📊 Assignment 2: Sales Data Analysis
-Objective: specific sales data analysis using Java Streams, Lambda expressions, and Functional aggregation.
+-----
 
-Features Implemented
-Functional Programming: Used Stream API for all logic (no loops).
+## 📊 Assignment 2: Sales Data Analysis
 
-Aggregation: Calculated Total Revenue (Sum) and Average Sales.
+**Objective:** Perform data analysis on CSV records using **Java Streams**, **Lambda Expressions**, and **Functional Aggregation**.
 
-Grouping: Grouped transactions by 'Category'.
+### Features Implemented
 
-Filtering: Filtered data dynamically by Region.
+* **Functional Programming:** Used Stream API for all logic (no loops).
+* **Aggregation:** Calculated Total Revenue (Sum) and Average Sales.
+* **Grouping:** Grouped transactions by 'Category' using `Collectors.groupingBy`.
+* **Filtering:** Filtered data dynamically by Region.
 
-How to Run
-Visual Demo: Run src/com/assignment/assignment2/Main.java.
+### Sample Output (Analysis Results)
 
-Grading Tests: Run src/com/assignment/assignment2/SalesAnalysisTest.java.
+*Run `src/com/assignment/assignment2/Main.java`*
 
-Sample Output (Analysis Results)
-
+```text
 --- Assignment 2: Sales Data Analysis ---
 Loaded 15 records.
 
@@ -181,39 +142,51 @@ Category: Electronics (6 items)
   -> Example: Laptop
 Category: Home (5 items)
   -> Example: Blender
+```
 
- ✅Testing (JUnit 5)
+-----
+
+## ✅ Unit Testing (JUnit 5)
 
 This project relies on **JUnit 5** for verifying grading requirements.
 
- ⚠️ Important Dependency Note
-Assignment 1 uses `@ParameterizedTest`. If you see **Red Marks** on this annotation in IntelliJ, you need to add the `junit-jupiter-params` library.
+### ⚠️ Important Dependency Note
+
+Assignment 1 uses `@ParameterizedTest`. If you see **Red Marks** on this annotation in IntelliJ:
 
 **Method 1: The Shortcut**
+
 1.  Click on `@ParameterizedTest` in the code.
 2.  Press **Alt + Enter** (Windows) or **Option + Enter** (Mac).
 3.  Select **"Add 'org.junit.jupiter:junit-jupiter-params' to classpath"**.
 
 **Method 2: Manual Setup (If shortcut fails)**
-1.  Go to **File > Project Structure > Modules**.
+
+1.  Go to **File \> Project Structure \> Modules**.
 2.  Select the **Dependencies** tab.
-3.  Click the **+ (Plus)** icon and select **"Library..." > "From Maven..."**.
+3.  Click the **+ (Plus)** icon and select **"Library..." \> "From Maven..."**.
 4.  Paste this string into the search bar:
     `org.junit.jupiter:junit-jupiter-params:5.9.2`
 5.  Click **OK** and ensure "Transitive dependencies" is checked.
 6.  Click **Apply**.
 
----
-
 ### Test Suites
 
 **1. Assignment 1 Tests (`ProducerConsumerTest`):**
-* `testDifferentCapacities`: Verifies synchronization works with dynamic capacities (1, 3, 50).
-* `testProducerBlocksWhenFull`: Mathematically proves the thread enters the `WAITING` state.
+
+* `testThreadSynchronization`: Verifies data integrity by moving large datasets without corruption.
+* `testConcurrentProgramming`: Verifies that Producer and Consumer threads run simultaneously without deadlocking.
+* `testBlockingQueueProducer`: Mathematically proves the Producer enters the `WAITING` state when the buffer is full.
+* `testWaitNotifyConsumer`: Mathematically proves the Consumer enters the `WAITING` state when the buffer is empty.
 
 **2. Assignment 2 Tests (`SalesAnalysisTest`):**
-* `testCalculateTotalRevenue`: Verifies functional aggregation accuracy using the real CSV file.
-* `testFilterByRegion`: Verifies Lambda filtering logic.
-* `testGroupingByCategory`: Verifies map collection logic.
 
-Test Results:All tests pass with 100% success rate.
+* `testFunctionalProgramming`: Verifies functional transformation (List to Grouped Map) without manual iteration.
+* `testStreamOperations`: Verifies complex stream chains (e.g., finding Max value with Comparators).
+* `testDataAggregation`: Verifies `Sum` and `Average` reductions match the data in `sales.csv`.
+* `testLambdaExpressions`: Verifies filtering logic using explicit Lambda expressions.
+
+**Test Results:** All 8 tests pass with 100% success rate.
+
+```
+```

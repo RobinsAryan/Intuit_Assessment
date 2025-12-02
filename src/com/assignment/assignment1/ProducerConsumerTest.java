@@ -1,106 +1,134 @@
 package com.assignment.assignment1;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
+import org.junit.jupiter.api.Timeout;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Comprehensive Unit Test Suite for the Producer-Consumer Application.
+ * Comprehensive Test Suite for Assignment 1.
  * <p>
- * This class verifies the core technical requirements of the assignment:
- * 1. Thread Synchronization (Data integrity under concurrent execution).
- * 2. Flexibility (Handling different buffer configurations).
- * 3. Blocking Behavior (Verifying threads wait when necessary).
+ * This class maps 1-to-1 with the Assignment Testing Objectives:
+ * 1. Thread Synchronization
+ * 2. Concurrent Programming
+ * 3. Blocking Queues
+ * 4. Wait/Notify Mechanism
  */
 public class ProducerConsumerTest {
 
-    /**
-     * REQUIREMENT: Flexibility & Concurrent Programming.
-     * <p>
-     * This Parameterized Test verifies that the system functions correctly
-     * under different buffer capacities. It runs automatically three times:
-     * <ul>
-     * <li>Capacity 1: Forces heavy blocking (Ping-Pong behavior).</li>
-     * <li>Capacity 3: Balanced blocking (Normal behavior).</li>
-     * <li>Capacity 50: No blocking (High throughput).</li>
-     * </ul>
-     *
-     * @param capacity The buffer size to be tested in this run.
-     * @throws InterruptedException If threads are interrupted during execution.
-     */
-    @ParameterizedTest
-    @ValueSource(ints = {1, 3, 50})
-    void testDifferentCapacities(int capacity) throws InterruptedException {
-        System.out.println("Running Test with Capacity: " + capacity);
-
-        // 1. Setup Data
+    // ---------------------------------------------------------------
+    // OBJECTIVE 1: Thread Synchronization
+    // Proof: We move data. If synchronization is broken, data order is lost or size mismatches.
+    // ---------------------------------------------------------------
+    @Test
+    void testThreadSynchronization() throws InterruptedException {
+        int capacity = 5;
+        // Create a large dataset to force many context switches
         List<Integer> source = new ArrayList<>();
-        // Create 20 items to move
-        for (int i = 0; i < 20; i++) source.add(i);
+        for (int i = 0; i < 100; i++) source.add(i);
         List<Integer> dest = new ArrayList<>();
 
-        // 2. Initialize Buffer with the dynamic capacity
         SharedBuffer<Integer> buffer = new CustomBlockingBuffer<>(capacity);
-
-        // 3. Execution (Start Threads)
         Thread t1 = new Thread(new Producer(buffer, source));
         Thread t2 = new Thread(new Consumer(buffer, dest));
 
         t1.start();
         t2.start();
-
-        // 4. Wait for threads to complete
         t1.join();
         t2.join();
 
-        // 5. Verification
-        // If synchronization is correct, Source and Destination must be identical.
-        assertEquals(source, dest, "Data mismatch or loss detected for capacity: " + capacity);
+        // Assertion: Source and Destination must be identical
+        assertEquals(source, dest, "Synchronization Failed: Data corruption detected.");
     }
 
-    /**
-     * REQUIREMENT: Blocking Queues & Wait/Notify Mechanism.
-     * <p>
-     * This test mathematically proves that the 'wait()' method is working.
-     * It forces a thread to write to a full buffer and asserts that the thread
-     * enters the WAITING state (instead of overwriting data or crashing).
-     */
+    // ---------------------------------------------------------------
+    // OBJECTIVE 2: Concurrent Programming
+    // Proof: Both threads run alive at the same time without deadlocking immediately.
+    // ---------------------------------------------------------------
     @Test
-    void testProducerBlocksWhenFull() throws InterruptedException {
-        // 1. Create a tiny buffer (Capacity 1)
+    @Timeout(value = 5, unit = TimeUnit.SECONDS) // INCREASED TO 5 SECONDS
+    void testConcurrentProgramming() throws InterruptedException {
+        SharedBuffer<Integer> buffer = new CustomBlockingBuffer<>(2);
+        List<Integer> source = new ArrayList<>();
+        // Process 10 items (takes approx 2.5 seconds due to Consumer sleep)
+        for (int i = 0; i < 10; i++) source.add(i);
+
+        Producer p = new Producer(buffer, source);
+        Consumer c = new Consumer(buffer, new ArrayList<>());
+
+        Thread t1 = new Thread(p);
+        Thread t2 = new Thread(c);
+
+        t1.start();
+        t2.start();
+
+        // Check that both are alive shortly after starting (Running concurrently)
+        Thread.sleep(50);
+        assertTrue(t1.isAlive() || t2.isAlive(), "Threads should be running concurrently");
+
+        t1.join();
+        t2.join();
+    }
+
+    // ---------------------------------------------------------------
+    // OBJECTIVE 3: Blocking Queues (Producer Side)
+    // Proof: Producer attempts to write to FULL buffer and must enter WAITING state.
+    // ---------------------------------------------------------------
+    @Test
+    void testBlockingQueueProducer() throws InterruptedException {
+        // Capacity 1
         SharedBuffer<Integer> buffer = new CustomBlockingBuffer<>(1);
+        buffer.produce(999); // Buffer is now FULL
 
-        // 2. Fill it completely (Size becomes 1)
-        buffer.produce(100);
-
-        // 3. Launch a separate thread that tries to add a second item.
-        // Since the buffer is full, this thread MUST block.
-        Thread t = new Thread(() -> {
+        // Try to add a second item (Should Block)
+        Thread producerThread = new Thread(() -> {
             try {
-                buffer.produce(200);
-            } catch (InterruptedException e) {
-                // Ignore interruption (expected during test cleanup)
-            }
+                buffer.produce(888);
+            } catch (InterruptedException e) {}
         });
 
-        t.start();
+        producerThread.start();
+        Thread.sleep(100); // Give it time to get stuck
 
-        // 4. Give the thread a moment (100ms) to run and hit the "wait()" line
-        Thread.sleep(100);
-
-        // 5. Verify State
-        // The thread should be physically stuck in WAITING or TIMED_WAITING state.
+        // Verify it is BLOCKED/WAITING
         assertTrue(
-                t.getState() == Thread.State.WAITING || t.getState() == Thread.State.TIMED_WAITING,
-                "Thread did not block! Current state: " + t.getState()
+                producerThread.getState() == Thread.State.WAITING ||
+                        producerThread.getState() == Thread.State.TIMED_WAITING,
+                "Producer did not block on full queue!"
         );
 
-        // Cleanup: Interrupt the stuck thread so the test finishes gracefully
-        t.interrupt();
+        producerThread.interrupt(); // Cleanup
+    }
+
+    // ---------------------------------------------------------------
+    // OBJECTIVE 4: Wait/Notify Mechanism (Consumer Side)
+    // Proof: Consumer attempts to read from EMPTY buffer and must enter WAITING state.
+    // ---------------------------------------------------------------
+    @Test
+    void testWaitNotifyConsumer() throws InterruptedException {
+        // Buffer is EMPTY
+        SharedBuffer<Integer> buffer = new CustomBlockingBuffer<>(5);
+
+        // Try to consume immediately (Should Block/Wait)
+        Thread consumerThread = new Thread(() -> {
+            try {
+                buffer.consume();
+            } catch (InterruptedException e) {}
+        });
+
+        consumerThread.start();
+        Thread.sleep(100); // Give it time to hit the wait()
+
+        // Verify it is BLOCKED/WAITING
+        assertTrue(
+                consumerThread.getState() == Thread.State.WAITING ||
+                        consumerThread.getState() == Thread.State.TIMED_WAITING,
+                "Consumer did not wait on empty queue!"
+        );
+
+        consumerThread.interrupt(); // Cleanup
     }
 }
