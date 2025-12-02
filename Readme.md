@@ -182,19 +182,38 @@ Category: Electronics (6 items)
 Category: Home (5 items)
   -> Example: Blender
 
-✅ Testing (JUnit 5)
-This project relies on JUnit 5 for verifying grading requirements.
+ ✅Testing (JUnit 5)
 
-Assignment 1 Tests (ProducerConsumerTest):
+This project relies on **JUnit 5** for verifying grading requirements.
 
-testDifferentCapacities: Proves flexibility (1 vs 50 capacity).
+ ⚠️ Important Dependency Note
+Assignment 1 uses `@ParameterizedTest`. If you see **Red Marks** on this annotation in IntelliJ, you need to add the `junit-jupiter-params` library.
 
-testProducerBlocksWhenFull: Proves thread blocking state.
+**Method 1: The Shortcut**
+1.  Click on `@ParameterizedTest` in the code.
+2.  Press **Alt + Enter** (Windows) or **Option + Enter** (Mac).
+3.  Select **"Add 'org.junit.jupiter:junit-jupiter-params' to classpath"**.
 
-Assignment 2 Tests (SalesAnalysisTest):
+**Method 2: Manual Setup (If shortcut fails)**
+1.  Go to **File > Project Structure > Modules**.
+2.  Select the **Dependencies** tab.
+3.  Click the **+ (Plus)** icon and select **"Library..." > "From Maven..."**.
+4.  Paste this string into the search bar:
+    `org.junit.jupiter:junit-jupiter-params:5.9.2`
+5.  Click **OK** and ensure "Transitive dependencies" is checked.
+6.  Click **Apply**.
 
-testCalculateTotalRevenue: Verifies math accuracy.
+---
 
-testFilterByRegion: Verifies functional logic.
+### Test Suites
 
-Test Results: All tests pass with 100% coverage of requirements.
+**1. Assignment 1 Tests (`ProducerConsumerTest`):**
+* `testDifferentCapacities`: Verifies synchronization works with dynamic capacities (1, 3, 50).
+* `testProducerBlocksWhenFull`: Mathematically proves the thread enters the `WAITING` state.
+
+**2. Assignment 2 Tests (`SalesAnalysisTest`):**
+* `testCalculateTotalRevenue`: Verifies functional aggregation accuracy using the real CSV file.
+* `testFilterByRegion`: Verifies Lambda filtering logic.
+* `testGroupingByCategory`: Verifies map collection logic.
+
+Test Results:All tests pass with 100% success rate.
