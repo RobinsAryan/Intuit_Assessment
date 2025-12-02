@@ -2,8 +2,6 @@ package com.assignment.assignment2;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,15 +9,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit Tests for SalesAnalysisService.
+ * Integration Test Suite for Assignment 2.
  * <p>
  * Objectives:
- * 1. Verify Functional Programming logic (Streams/Lambdas).
- * 2. Verify Data Aggregation accuracy (Sum, Average).
- * 3. Verify Grouping operations.
- * <p>
- * Note: These tests use Mock Data (in-memory list) rather than reading from the CSV.
- * This ensures we are testing the Logic, not the File System.
+ * 1. Verify "Functional Programming" logic using REAL data.
+ * 2. Verify "Stream Operations" correctly process the CSV file.
+ * 3. Verify "Data Aggregation" matches the expected values in sales.csv.
  */
 class SalesAnalysisTest {
 
@@ -27,72 +22,79 @@ class SalesAnalysisTest {
 
     @BeforeEach
     void setUp() {
-        // Prepare Mock Data for functional testing
-        // Total Sum = 1000 + 50 + 150 + 200 = 1400.0
-        // Count = 4
-        // Average = 350.0
-        List<SalesRecord> mockData = Arrays.asList(
-                new SalesRecord(1, LocalDate.now(), "Tech", "Laptop", "North", 1000.0),
-                new SalesRecord(2, LocalDate.now(), "Tech", "Mouse", "South", 50.0),
-                new SalesRecord(3, LocalDate.now(), "Home", "Table", "North", 150.0),
-                new SalesRecord(4, LocalDate.now(), "Home", "Chair", "West", 200.0)
-        );
-        service = new SalesAnalysisService(mockData);
+        // --- INTEGRATION TEST SETUP ---
+        // Instead of Mock Data, we load the ACTUAL 'sales.csv' file.
+        // This proves that the CsvLoader and the SalesAnalysisService work together.
+        List<SalesRecord> realData = CsvLoader.loadSales("sales.csv");
+
+        // Safety assertion to ensure the file was found and read
+        assertFalse(realData.isEmpty(), "sales.csv should not be empty! Check file path.");
+
+        service = new SalesAnalysisService(realData);
     }
 
     /**
-     * Tests Data Aggregation (Summing).
-     * Expected: 1000 + 50 + 150 + 200 = 1400.0
+     * Requirement: Data Aggregation (Sum)
+     * Test: Verifies that the Stream.sum() operation correctly totals the CSV data.
+     * Expected Value: 3785.50 (Calculated from the 15 records in sales.csv)
      */
     @Test
     void testCalculateTotalRevenue() {
-        assertEquals(1400.0, service.calculateTotalRevenue(), "Total revenue calculation failed");
+        assertEquals(3785.50, service.calculateTotalRevenue(), 0.01, "Total revenue incorrect based on CSV data");
     }
 
     /**
-     * Tests Data Aggregation (Average).
-     * Expected: 1400.0 / 4 items = 350.0
+     * Requirement: Data Aggregation (Average)
+     * Test: Verifies that Stream.average() works correctly.
+     * Expected Value: 3785.50 / 15 = 252.37
      */
     @Test
     void testCalculateAverageSales() {
-        assertEquals(350.0, service.calculateAverageSales(), "Average calculation failed");
+        assertEquals(252.37, service.calculateAverageSales(), 0.01, "Average calculation incorrect based on CSV data");
     }
 
     /**
-     * Tests Stream Filtering with Lambda expressions.
-     * Expects 2 records for 'North' region (Laptop and Table).
+     * Requirement: Functional Programming (Filtering)
+     * Test: Verifies that the Lambda filter 's -> s.getRegion().equals("North")' works.
+     * Expected: 5 records in the CSV match "North".
      */
     @Test
     void testFilterByRegion() {
         List<SalesRecord> northSales = service.filterByRegion("North");
 
-        assertEquals(2, northSales.size(), "Should find exactly 2 records for North");
-        assertTrue(northSales.stream().allMatch(s -> s.getRegion().equals("North")), "Filter leaked non-North regions");
+        assertEquals(5, northSales.size(), "Should find exactly 5 records for North in CSV");
+        // Verify every item in the filtered list is actually North
+        assertTrue(northSales.stream().allMatch(s -> s.getRegion().equals("North")));
     }
 
     /**
-     * Tests Finding Max value using Comparators.
-     * Expected: Laptop (1000.0)
+     * Requirement: Stream Operations (Max)
+     * Test: Verifies Comparator logic finds the highest amount.
+     * Expected: 1200.00 (Laptop)
      */
     @Test
     void testFindHighestValueSale() {
         Optional<SalesRecord> max = service.findHighestValueSale();
 
-        assertTrue(max.isPresent(), "Max value should be present");
-        assertEquals("Laptop", max.get().getProduct());
-        assertEquals(1000.0, max.get().getAmount());
+        assertTrue(max.isPresent());
+        assertEquals(1200.00, max.get().getAmount(), 0.01, "Highest value should be 1200.00");
     }
 
     /**
-     * Tests Grouping by Category using Collectors.
-     * Expects keys "Tech" and "Home".
+     * Requirement: Grouping and Collections
+     * Test: Verifies Collectors.groupingBy logic.
      */
     @Test
     void testGroupingByCategory() {
         Map<String, List<SalesRecord>> grouped = service.getSalesByCategory();
 
-        assertTrue(grouped.containsKey("Tech"));
+        // Check keys exist (Electronics, Clothing, Home)
+        assertTrue(grouped.containsKey("Electronics"));
+        assertTrue(grouped.containsKey("Clothing"));
         assertTrue(grouped.containsKey("Home"));
-        assertEquals(2, grouped.get("Tech").size(), "Tech category should have 2 items");
+
+        // Check counts based on CSV
+        assertEquals(6, grouped.get("Electronics").size(), "Electronics should have 6 items");
+        assertEquals(4, grouped.get("Clothing").size(), "Clothing should have 4 items");
     }
 }
