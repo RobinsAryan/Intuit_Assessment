@@ -3,14 +3,13 @@
 
 This repository contains the solutions for two Java technical assignments demonstrating proficiency in **Multithreading** and **Functional Programming**.
 
-1.  **Assignment 1:** Producer-Consumer Pattern (Thread Synchronization)
-2.  **Assignment 2:** Sales Data Analysis (Java Streams & Lambdas)
+1.  Assignment 1: Producer-Consumer Pattern (Thread Synchronization)
+2.  Assignment 2: Sales Data Analysis (Java Streams & Lambdas)
 
 ---
 
-## 📂 Project Structure
+📂 Project Structure
 
-```text
 src/
  └── com/
       └── assignment/
@@ -34,7 +33,7 @@ sales.csv                                 # Data file (Located in Project Root)
 ### 1\. Clone the Repository
 
 ```bash
-git clone [https://github.com/RobinsAryan/Intuit_Assessment.git](https://github.com/RobinsAryan/Intuit_Assessment.git)
+git clone https://github.com/RobinsAryan/Intuit_Assessment.git
 ```
 
 ### 2\. Open in IntelliJ IDEA
