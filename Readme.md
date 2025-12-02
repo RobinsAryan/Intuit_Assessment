@@ -186,6 +186,3 @@ Assignment 1 uses `@ParameterizedTest`. If you see **Red Marks** on this annotat
 * `testLambdaExpressions`: Verifies filtering logic using explicit Lambda expressions.
 
 **Test Results:** All 8 tests pass with 100% success rate.
-
-```
-```
